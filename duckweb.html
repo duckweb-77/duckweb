@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>duckweb的作品集</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           基础变量与重置
+           ========================================================================== */
+        :root {
+            --bg-color: #F4F2EC; 
+            --text-main: #2C2B29; 
+            --text-muted: #8A867D; 
+            --border-color: #DCD8CB; /* 加深了一点分割线，更有质感 */
+            --frame-bg: #EBE8E0; /* 画框底色，比背景稍深一点点，突出作品 */
+            --font-serif: 'Noto Serif SC', 'Playfair Display', serif;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        .container {
+            max-width: 1440px; 
+            margin: 0 auto;
+            padding: 0 4vw; 
+        }
+
+        /* ==========================================================================
+           头部与导航
+           ========================================================================== */
+        header {
+            padding: 8vh 0 4vh;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px solid var(--text-main); /* 头部加粗底线 */
+            margin-bottom: 6vh;
+        }
+
+        .logo h1 {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .logo p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .filter-nav { display: flex; gap: 1.5rem; list-style: none; flex-wrap: wrap; }
+
+        .filter-nav button {
+            background: none; border: none; font-family: var(--font-sans);
+            font-size: 0.95rem; color: var(--text-muted); cursor: pointer;
+            transition: color 0.3s ease; position: relative; padding-bottom: 4px;
+        }
+
+        .filter-nav button:hover, .filter-nav button.active { color: var(--text-main); font-weight: 500; }
+        .filter-nav button.active::after {
+            content: ''; position: absolute; left: 0; bottom: 0;
+            width: 100%; height: 2px; background-color: var(--text-main);
+        }
+
+        /* ==========================================================================
+           大分类区块 (Category Sections)
+           ========================================================================== */
+        .category-section {
+            margin-bottom: 12vh; /* 每个大类之间的巨大呼吸感留白 */
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-title {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 40px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color); /* 每个分类标题自带分割线 */
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+        }
+
+        .section-title span {
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ==========================================================================
+           严整网格系统 (Strict Grid System)
+           ========================================================================== */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 48px 24px;
+        }
+
+        /* 通过列数控制并排数量，保证每行对齐 */
+        .col-4 { grid-column: span 4; } /* 一行3个 */
+        .col-6 { grid-column: span 6; } /* 一行2个 */
+        .col-12 { grid-column: span 12; } /* 独占一行 */
+
+        /* 特定分组外框（可选，用于视觉强化） */
+        .work-group {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 48px 24px;
+        }
+
+        .work-item { width: 100%; position: relative; }
+
+        /* ==========================================================================
+           画廊级容器 (Gallery Passepartout Container)
+           重点：容器固定比例，内部图片/视频自适应居中，绝不拉伸
+           ========================================================================== */
+        .media-container {
+            width: 100%;
+            aspect-ratio: 4 / 3; /* 所有画框统一比例，保证外部网格绝对整齐 */
+            background-color: var(--frame-bg); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 4%; /* 给作品四周留出一点画框边缘 */
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        /* 特殊：对于宽屏全景，使用 16:9 画框 */
+        .media-container.wide { aspect-ratio: 16 / 9; padding: 2%; }
+
+        .media-container img,
+        .media-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* 保证作品完整呈现，不裁剪 */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* 给作品本身加一点非常轻微的阴影，脱离底纸 */
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .work-item:hover .media-container img,
+        .work-item:hover .media-container video {
+            transform: scale(1.03); 
+        }
+
+        .sound-btn {
+            position: absolute; bottom: 12px; right: 12px;
+            background: rgba(244, 242, 236, 0.9);
+            color: var(--text-main); border: 1px solid var(--border-color);
+            padding: 4px 10px; font-size: 0.7rem; font-family: var(--font-sans);
+            cursor: pointer; border-radius: 4px; transition: all 0.3s ease; z-index: 10;
+        }
+        .sound-btn:hover { background: var(--text-main); color: var(--bg-color); }
+
+        /* ==========================================================================
+           作品信息
+           ========================================================================== */
+        .work-info {
+            margin-top: 16px;
+            text-align: center; /* 信息居中，更像画廊展签 */
+        }
+
+        .work-title {
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #111;
+            margin-bottom: 4px;
+        }
+
+        /* ==========================================================================
+           响应式适配
+           ========================================================================== */
+        @media (max-width: 1024px) {
+            .col-4 { grid-column: span 6; } /* 平板端一行2个 */
+        }
+        @media (max-width: 768px) {
+            header { flex-direction: column; align-items: flex-start; gap: 1.5rem; padding: 6vh 0 4vh; }
+            .col-4, .col-6 { grid-column: span 12; } /* 手机端全部单列 */
+            .section-title { font-size: 1.5rem; flex-direction: column; gap: 4px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>duckweb.</h1>
+                <p>Selected Works & Portfolio</p>
+            </div>
+            <nav>
+                <ul class="filter-nav">
+                    <li><button class="active" data-filter="all">全部展示</button></li>
+                    <li><button data-filter="aigc">AIGC生成</button></li>
+                    <li><button data-filter="ae">AE动效</button></li>
+                    <li><button data-filter="scene">场景交互</button></li>
+                    <li><button data-filter="3d">3D建模</button></li>
+                    <li><button data-filter="graphic">平面作品</button></li>
+                    <li><button data-filter="other">其他交互</button></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main id="portfolio-main">
+
+            <section class="category-section" data-category="aigc">
+                <h2 class="section-title">AIGC生成 <span>/ AI Generated Content</span></h2>
+                <div class="portfolio-grid">
+                    <article class="work-item col-4">
+                        <div class="media-container">
+                            <video autoplay loop muted playsinline><source src="assets/vlog.mp4" type="video/mp4"></video>
+                            <button class="sound-btn">Sound: Off</button>
+                        </div>
+                        <div class="work-info"><h2 class="work-title">Vlog</h2></div>
+                    </article>
+                    <article class="work-item col-4">
+                        <div class="media-container">
+                            <video autoplay loop muted playsinline><source src="assets/视频.mp4" type="video/mp4"></video>
+                            <button class="sound-btn">Sound: Off</button>
+                        </div>
+                        <div class="work-info"><h2 class="work-title">AIGC 视频</h2></div>
+                    </article>
+                    <article class="work-item col-4">
+                        <div class="media-container">
+                            <img src="assets/jimeng-2026-04-09-5987-给图1女生的衣服改成图3的校袍 衣服上的校徽参考图2.png" alt="草药课">
+                        </div>
+                        <div class="work-info"><h2 class="work-title">aigc生成</h2></div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="category-section" data-category="ae">
+                <h2 class="section-title">AE动效 <span>/ Motion Graphics</span></h2>
+                <div class="portfolio-grid">
+                    <article class="work-item col-6">
+                        <div class="media-container wide">
+                            <video autoplay loop muted playsinline><source src="assets/06_星际穿越——文明重启.mp4" type="video/mp4"></video>
+                            <button class="sound-btn">Sound: Off</button>
+                        </div>
+                        <div class="work-info"><h2 class="work-title">星际穿越——文明重启</h2></div>
+                    </article>
+                    <article class="work-item col-6">
+                        <div class="media-container wide">
+                            <video autoplay loop muted playsinline><source src="assets/合成 1_1.mp4" type="video/mp4"></video>
+                            <button class="sound-btn">Sound: Off</button>
+                        </div>
+                        <div class="work-info"><h2 class="work-title">动效合成 1_1</h2></div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="category-section" data-category="scene">
+                <h2 class="section-title">场景交互 <span>/ Scene Interaction</span></h2>
+                <div class="portfolio-grid">
+                    <article class="work-item col-6">
+                        <div class="media-container wide">
+                            <video autoplay loop muted playsinline><source src="assets/01_景德镇场馆漫游.mp4" type="video/mp4"></video>
+                            <button class="sound-btn">Sound: Off</button>
+                        </div>
+                        <div class="work-info"><h2 class="work-title">景德镇场馆漫游</h2></div>
+                    </article>
+                    <article class="work-item col-6">
+                        <div class="media-container wide">
+                            <video autoplay loop muted playsinline><source src="assets/02_非遗剪纸场馆.mp4" type="video/mp4"></video>
+                            <button class="sound-btn">Sound: Off</button>
+                        </div>
+                        <div class="work-info"><h2 class="work-title">非遗剪纸场馆</h2></div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="category-section" data-category="graphic">
+                <h2 class="section-title">平面作品 <span>/ Graphic Design</span></h2>
+                <div class="portfolio-grid">
+                    
+                    <div class="work-group">
+                        <article class="work-item col-4">
+                            <div class="media-container">
+                                <img src="assets/11_烟雨江南1 .jpg" alt="烟雨江南1">
+                            </div>
+                            <div class="work-info"><h2 class="work-title">烟雨江南 I</h2></div>
+                        </article>
+                        <article class="work-item col-4">
+                            <div class="media-container">
+                                <img src="assets/11_烟雨江南3.jpg" alt="烟雨江南3">
+                            </div>
+                            <div class="work-info"><h2 class="work-title">烟雨江南 II</h2></div>
+                        </article>
+                        <article class="work-item col-4">
+                            <div class="media-container">
+                                <img src="assets/10_新纪元海报.jpg" alt="新纪元海报">
+                            </div>
+                            <div class="work-info"><h2 class="work-title">新纪元海报</h2></div>
+                        </article>
+                    </div>
+
+                    <div class="work-group" style="margin-top: 24px;">
+                        <article class="work-item col-4">
+                            <div class="media-container">
+                                <img src="assets/8_壶游豫州1 .jpg" alt="壶游豫州1">
+                            </div>
+                            <div class="work-info"><h2 class="work-title">壶游豫州 I</h2></div>
+                        </article>
+                        <article class="work-item col-4">
+                            <div class="media-container">
+                                <img src="assets/8_壶游豫州2.jpg" alt="壶游豫州2">
+                            </div>
+                            <div class="work-info"><h2 class="work-title">壶游豫州 II</h2></div>
+                        </article>
+                        <article class="work-item col-4">
+                            <div class="media-container">
+                                <img src="assets/09_星际穿越海报.jpg" alt="星际穿越海报">
+                            </div>
+                            <div class="work-info"><h2 class="work-title">星际穿越海报</h2></div>
+                        </article>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="category-section" data-category="3d">
+                <h2 class="section-title">3D建模 <span>/ 3D Modeling</span></h2>
+                <div class="portfolio-grid">
+                    <article class="work-item col-4">
+                        <div class="media-container"><img src="assets/07_地铁花海.png" alt="地铁花海"></div>
+                        <div class="work-info"><h2 class="work-title">地铁花海</h2></div>
+                    </article>
+                    <article class="work-item col-4">
+                        <div class="media-container"><img src="assets/03_党建馆.png" alt="党建馆"></div>
+                        <div class="work-info"><h2 class="work-title">党建馆</h2></div>
+                    </article>
+                    <article class="work-item col-4">
+                        <div class="media-container"><img src="assets/04_vr美术馆.png" alt="VR美术馆"></div>
+                        <div class="work-info"><h2 class="work-title">VR 美术馆</h2></div>
+                    </article>
+                    <article class="work-item col-4">
+                        <div class="media-container"><img src="assets/05_行政楼建模1.png" alt="行政楼建模1"></div>
+                        <div class="work-info"><h2 class="work-title">行政楼建模 I</h2></div>
+                    </article>
+                    <article class="work-item col-4">
+                        <div class="media-container"><img src="assets/05_行政楼建模2.png" alt="行政楼建模2"></div>
+                        <div class="work-info"><h2 class="work-title">行政楼建模 II</h2></div>
+                    </article>
+                    <article class="work-item col-4">
+                        <div class="media-container"><img src="assets/旅馆.png" alt="旅馆"></div>
+                        <div class="work-info"><h2 class="work-title">旅馆</h2></div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="category-section" data-category="other">
+                <h2 class="section-title">其他交互 <span>/ Other Interactions</span></h2>
+                <div class="portfolio-grid">
+                    <article class="work-item col-12">
+                        <div class="media-container wide">
+                            <video autoplay loop muted playsinline><source src="assets/redrose.mp4" type="video/mp4"></video>
+                            <button class="sound-btn">Sound: Off</button>
+                        </div>
+                        <div class="work-info"><h2 class="work-title">Red Rose (TD+AIGC)</h2></div>
+                    </article>
+                </div>
+            </section>
+
+        </main>
+
+        <footer>
+            <div class="copyright">&copy; 2024 duckweb. All Rights Reserved.</div>
+            <div class="contact"><a href="mailto:hello@duckweb.com">hello@duckweb.com</a></div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const filterBtns = document.querySelectorAll('.filter-nav button');
+            const sections = document.querySelectorAll('.category-section');
+
+            // 分类导航点击逻辑
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // 按钮高亮切换
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const filterValue = btn.getAttribute('data-filter');
+
+                    // 以整个 Section 区块为单位进行隐藏/显示
+                    sections.forEach(section => {
+                        if (filterValue === 'all' || section.getAttribute('data-category') === filterValue) {
+                            section.style.display = 'block';
+                        } else {
+                            section.style.display = 'none';
+                            // 隐藏时，自动静音该区块内的所有视频
+                            const videos = section.querySelectorAll('video');
+                            videos.forEach(v => v.muted = true);
+                            const soundBtns = section.querySelectorAll('.sound-btn');
+                            soundBtns.forEach(b => b.innerText = 'Sound: Off');
+                        }
+                    });
+                });
+            });
+
+            // 视频声音独立控制
+            const soundBtns = document.querySelectorAll('.sound-btn');
+            soundBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const video = btn.previousElementSibling; 
+                    
+                    if (video.muted) {
+                        // 开启声音前，先把页面上其他视频静音
+                        document.querySelectorAll('video').forEach(v => v.muted = true);
+                        document.querySelectorAll('.sound-btn').forEach(b => b.innerText = 'Sound: Off');
+                        
+                        video.muted = false;
+                        video.currentTime = 0; 
+                        btn.innerText = 'Sound: On';
+                    } else {
+                        video.muted = true;
+                        btn.innerText = 'Sound: Off';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
